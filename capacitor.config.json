@@ -1,0 +1,12 @@
+{
+  "appId": "com.betfellas.app",
+  "appName": "BetFellas",
+  "webDir": "dist",
+  "backgroundColor": "#020617",
+  "android": {
+    "allowMixedContent": false
+  },
+  "ios": {
+    "contentInset": "always"
+  }
+}

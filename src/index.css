@@ -1,0 +1,11 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+html { background: #020617; } /* slate-950 */
+body { font-feature-settings: "tnum"; }
+input[type="number"]::-webkit-inner-spin-button { -webkit-appearance: none; }
+
+/* alt sheet animasyonu */
+@keyframes sheetUp { from { transform: translateY(24px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+.sheet-in { animation: sheetUp .22s ease-out; }
