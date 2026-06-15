@@ -1,0 +1,18 @@
+workflows:
+  ios-app:
+    name: BetFellas iOS Build
+    environment:
+      node: latest
+      xcode: latest
+      cocoapods: default
+    scripts:
+      - name: Paketleri Yükle (npm install)
+        script: npm install
+      - name: Web Çıktısını Al ve iOS'a Aktar
+        script: npm run mobile:sync
+      - name: iOS Projesini Derle (İmzasız)
+        script: |
+          cd ios/App
+          xcodebuild build -workspace App.xcworkspace -scheme App -destination 'generic/platform=iOS' CODE_SIGNING_ALLOWED=NO
+    artifacts:
+      - ios/App/build/Release-iphoneos/*.app
