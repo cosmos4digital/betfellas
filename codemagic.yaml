@@ -4,7 +4,7 @@ workflows:
     
     # 1. ADIM: AZ ÖNCE CODEMAGIC'E EKLEDİĞİN ANAHTARI BURAYA TANITIYORUZ
     integrations:
-      app_store_connect: Codemagic Key # <-- Buraya Codemagic ayarlarına anahtarı eklerken verdiğin ismi yaz (örn: Codemagic Key veya Betfellas Apple Key vs.)
+      app_store_connect: NeoCosmos # <-- Buraya Codemagic ayarlarına anahtarı eklerken verdiğin ismi yaz (örn: Codemagic Key veya Betfellas Apple Key vs.)
 
     environment:
       node: latest
