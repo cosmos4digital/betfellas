@@ -1,18 +1,36 @@
 workflows:
   ios-app:
     name: BetFellas iOS Build
+    
+    integrations:
+      app_store_connect: NeoCosmos
+
     environment:
       node: latest
       xcode: latest
       cocoapods: default
+      
+      # İŞTE SİHİRLİ KISIM BURASI: Codemagic kasayı ve sertifikayı otomatik halledecek
+      ios_signing:
+        distribution_type: app_store
+        bundle_identifier: com.neocosmos.betfellas
+
     scripts:
       - name: Paketleri Yükle (npm install)
         script: npm install
+        
       - name: Web Çıktısını Al ve iOS'a Aktar
         script: npm run mobile:sync
-      - name: iOS Projesini Derle (İmzasız)
+          
+      - name: iOS Projesini Derle ve İmzala
         script: |
-          cd ios/App
-          xcodebuild build -workspace App.xcworkspace -scheme App -destination 'generic/platform=iOS' CODE_SIGNING_ALLOWED=NO
+          xcode-project use-profiles
+          xcode-project build-ipa --workspace "ios/App/App.xcworkspace" --scheme "App"
+          
     artifacts:
-      - ios/App/build/Release-iphoneos/*.app
+      - build/ios/ipa/*.ipa
+      
+    publishing:
+      app_store_connect:
+        auth: integration
+        submit_to_testflight: true
