@@ -15,16 +15,24 @@ workflows:
         distribution_type: app_store
         bundle_identifier: com.neocosmos.betfellas
 
-    scripts:
+scripts:
+      - name: Set up signing
+        script: |
+          keychain initialize
+          app-store-connect fetch-signing-files "com.neocosmos.betfellas" \
+            --type IOS_APP_STORE \
+            --create
+          keychain add-certificates
+          xcode-project use-profiles
+
       - name: Paketleri Yükle (npm install)
         script: npm install
-        
+
       - name: Web Çıktısını Al ve iOS'a Aktar
         script: npm run mobile:sync
-          
+
       - name: iOS Projesini Derle ve İmzala
         script: |
-          xcode-project use-profiles
           xcode-project build-ipa --workspace "ios/App/App.xcworkspace" --scheme "App"
           
     artifacts:
