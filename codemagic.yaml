@@ -14,7 +14,7 @@ workflows:
       # 2. ADIM: OTOMATİK İMZALAMA AYARLARI
       ios_signing:
         distribution_type: app_store
-        bundle_identifier: BetFellas - com.neocosmos.betfellas # <-- DİKKAT: Bunu Apple Developer'da oluşturduğun Bundle ID ile değiştir
+        bundle_identifier: com.neocosmos.betfellas # <-- DİKKAT: Bunu Apple Developer'da oluşturduğun Bundle ID ile değiştir
 
     scripts:
       - name: Paketleri Yükle (npm install)
