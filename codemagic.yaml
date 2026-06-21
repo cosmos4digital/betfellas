@@ -1,18 +1,40 @@
 workflows:
   ios-app:
     name: BetFellas iOS Build
+    
+    # 1. ADIM: AZ ÖNCE CODEMAGIC'E EKLEDİĞİN ANAHTARI BURAYA TANITIYORUZ
+    integrations:
+      app_store_connect: Codemagic Key # <-- Buraya Codemagic ayarlarına anahtarı eklerken verdiğin ismi yaz (örn: Codemagic Key veya Betfellas Apple Key vs.)
+
     environment:
       node: latest
       xcode: latest
       cocoapods: default
+      
+      # 2. ADIM: OTOMATİK İMZALAMA AYARLARI
+      ios_signing:
+        distribution_type: app_store
+        bundle_identifier: com.neocosmos.betfellas # <-- DİKKAT: Bunu Apple Developer'da oluşturduğun Bundle ID ile değiştir
+
     scripts:
       - name: Paketleri Yükle (npm install)
         script: npm install
+        
       - name: Web Çıktısını Al ve iOS'a Aktar
         script: npm run mobile:sync
-      - name: iOS Projesini Derle (İmzasız)
+        
+      # 3. ADIM: İMZALI DERLEME İŞLEMİ (xcodebuild yerine xcode-project kullanıyoruz)
+      - name: iOS Projesini Derle ve İmzala
         script: |
-          cd ios/App
-          xcodebuild build -workspace App.xcworkspace -scheme App -destination 'generic/platform=iOS' CODE_SIGNING_ALLOWED=NO
+          xcode-project use-profiles
+          xcode-project build-ipa --workspace "ios/App/App.xcworkspace" --scheme "App"
+          
+    # 4. ADIM: ÇIKTIYI .app YERİNE .ipa OLARAK ALIYORUZ
     artifacts:
-      - ios/App/build/Release-iphoneos/*.app
+      - build/ios/ipa/*.ipa
+      
+    # 5. ADIM: APP STORE CONNECT / TESTFLIGHT'A OTOMATİK GÖNDERME
+    publishing:
+      app_store_connect:
+        auth: integration
+        submit_to_testflight: true
