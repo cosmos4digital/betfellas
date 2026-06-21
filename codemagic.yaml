@@ -26,9 +26,16 @@ workflows:
       - name: Web Çıktısını Al ve iOS'a Aktar
         script: npm run mobile:sync
 
+      - name: Pod yükle
+        script: |
+          cd ios/App && pod install
+
       - name: iOS Projesini Derle ve İmzala
         script: |
-          xcode-project build-ipa --workspace "ios/App/App.xcworkspace" --scheme "App"
+          xcode-project use-profiles
+          xcode-project build-ipa \
+            --workspace "ios/App/App.xcworkspace" \
+            --scheme "App"
 
     artifacts:
       - build/ios/ipa/*.ipa
