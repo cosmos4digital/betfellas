@@ -23,7 +23,11 @@ workflows:
       - name: Web Çıktısını Al ve iOS'a Aktar
         script: npm run mobile:sync
         
-      # 3. ADIM: İMZALI DERLEME İŞLEMİ (xcodebuild yerine xcode-project kullanıyoruz)
+      # BİZİM EKLEDİĞİMİZ ZORUNLU SERTİFİKA KOMUTU:
+      - name: Apple'dan Sertifika ve Profil Talep Et (Zorla)
+        script: |
+          app-store-connect fetch-signing-files "com.neocosmos.betfellas" --type IOS_APP_STORE --create
+        
       - name: iOS Projesini Derle ve İmzala
         script: |
           xcode-project use-profiles
