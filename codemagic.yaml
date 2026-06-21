@@ -2,19 +2,14 @@ workflows:
   ios-app:
     name: BetFellas iOS Build
     
-    # 1. ADIM: AZ ÖNCE CODEMAGIC'E EKLEDİĞİN ANAHTARI BURAYA TANITIYORUZ
     integrations:
-      app_store_connect: NeoCosmos # <-- Buraya Codemagic ayarlarına anahtarı eklerken verdiğin ismi yaz (örn: Codemagic Key veya Betfellas Apple Key vs.)
+      app_store_connect: NeoCosmos
 
     environment:
       node: latest
       xcode: latest
       cocoapods: default
-      
-      # 2. ADIM: OTOMATİK İMZALAMA AYARLARI
-      ios_signing:
-        distribution_type: app_store
-        bundle_identifier: com.neocosmos.betfellas # <-- DİKKAT: Bunu Apple Developer'da oluşturduğun Bundle ID ile değiştir
+      # DİKKAT: Buradaki 'ios_signing' bloğunu tamamen sildik ki en başta hata vermesin!
 
     scripts:
       - name: Paketleri Yükle (npm install)
@@ -23,21 +18,19 @@ workflows:
       - name: Web Çıktısını Al ve iOS'a Aktar
         script: npm run mobile:sync
         
-      # BİZİM EKLEDİĞİMİZ ZORUNLU SERTİFİKA KOMUTU:
+      # MAKİNE ÇALIŞTIKTAN SONRA SERTİFİKAYI VE PROFİLİ ŞİMDİ ZORLA ÜRETECEĞİZ:
       - name: Apple'dan Sertifika ve Profil Talep Et (Zorla)
         script: |
           app-store-connect fetch-signing-files "com.neocosmos.betfellas" --type IOS_APP_STORE --create
-        
+          
       - name: iOS Projesini Derle ve İmzala
         script: |
           xcode-project use-profiles
           xcode-project build-ipa --workspace "ios/App/App.xcworkspace" --scheme "App"
           
-    # 4. ADIM: ÇIKTIYI .app YERİNE .ipa OLARAK ALIYORUZ
     artifacts:
       - build/ios/ipa/*.ipa
       
-    # 5. ADIM: APP STORE CONNECT / TESTFLIGHT'A OTOMATİK GÖNDERME
     publishing:
       app_store_connect:
         auth: integration
