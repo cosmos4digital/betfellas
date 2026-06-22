@@ -41,9 +41,11 @@ workflows:
 
           keychain add-certificates
 
-          # Çekilen profil ve sertifikaları doğrula; yoksa anlaşılır hatayla dur
-          PROFILE_DIR="$HOME/Library/MobileDevice/Provisioning Profiles"
-          PROFILE_COUNT=$(ls "$PROFILE_DIR"/*.mobileprovision 2>/dev/null | wc -l | tr -d ' ')
+          # Çekilen profilleri doğrula (Codemagic profilleri her iki konuma da kaydedebilir)
+          PROFILE_COUNT=$(find \
+            "$HOME/Library/MobileDevice/Provisioning Profiles" \
+            "$HOME/Library/Developer/Xcode/UserData/Provisioning Profiles" \
+            -name '*.mobileprovision' 2>/dev/null | wc -l | tr -d ' ')
           echo "Bulunan provisioning profile sayısı: $PROFILE_COUNT"
           if [ "$PROFILE_COUNT" -eq 0 ]; then
             echo "HATA: '$BUNDLE_ID' için App Store dağıtım profili çekilemedi."
