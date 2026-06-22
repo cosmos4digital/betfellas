@@ -59,6 +59,19 @@ workflows:
           # Çekilen profilleri Xcode projesine uygula (manuel imzalamaya geçer)
           xcode-project use-profiles
 
+      - name: Build numarasını ayarla (App Store Connect'e göre +1)
+        script: |
+          set -e
+          APP_ID=6782518021
+          # App Store Connect'teki en son TestFlight build numarasını al; yoksa 0 kabul et
+          LATEST=$(app-store-connect get-latest-testflight-build-number "$APP_ID" 2>/dev/null || echo 0)
+          if [ -z "$LATEST" ]; then LATEST=0; fi
+          NEW_BUILD=$((LATEST + 1))
+          echo "Önceki build numarası: $LATEST -> Yeni build numarası: $NEW_BUILD"
+          # CFBundleVersion = $(CURRENT_PROJECT_VERSION) olduğundan proje ayarını güncelliyoruz
+          sed -i '' "s/CURRENT_PROJECT_VERSION = [0-9.]*;/CURRENT_PROJECT_VERSION = $NEW_BUILD;/g" \
+            ios/App/App.xcodeproj/project.pbxproj
+
       - name: iOS Projesini Derle ve İmzala
         script: |
           set -e
