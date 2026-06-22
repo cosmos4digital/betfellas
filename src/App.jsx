@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { LayoutGrid, Trophy, MessagesSquare, Store as StoreIcon, User, ChevronDown, Check, Plus, Receipt } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { AppProvider, useApp } from "./context/AppContext";
@@ -11,6 +11,7 @@ import Feed from "./components/Feed";
 import Store from "./components/Store";
 import Profile from "./components/Profile";
 import BetSlip from "./components/BetSlip";
+import { initAds } from "./lib/ads";
 
 const TABS = [
   { id: "matches", key: "nav.matches", icon: LayoutGrid },
@@ -28,6 +29,9 @@ function Shell() {
   const [switcherOpen, setSwitcherOpen] = useState(false);
   const [slipOpen, setSlipOpen] = useState(false);
   const [ageOk, setAgeOk] = useState(() => localStorage.getItem("bf_age_ok") === "1");
+
+  // AdMob: SDK'yı başlat ve alt banner'ı göster (yalnızca native/iOS)
+  useEffect(() => { initAds(); }, []);
 
   if (loading)
     return (
@@ -64,7 +68,7 @@ function Shell() {
         </div>
       </header>
 
-      <main className="flex-1 max-w-lg w-full mx-auto px-4 py-4 pb-28">
+      <main className="flex-1 max-w-lg w-full mx-auto px-4 py-4 pb-[calc(7rem+var(--ad-banner-h,0px))]">
         {tab === "matches" && <Matches />}
         {tab === "leaderboard" && <Leaderboard />}
         {tab === "feed" && <Feed />}
@@ -90,7 +94,7 @@ function Shell() {
       )}
       {slipOpen && <BetSlip onClose={() => setSlipOpen(false)} />}
 
-      <nav className="fixed bottom-0 inset-x-0 z-30 bg-slate-950/95 backdrop-blur border-t border-slate-800/80 pb-safe">
+      <nav className="fixed bottom-[var(--ad-banner-h,0px)] inset-x-0 z-30 bg-slate-950/95 backdrop-blur border-t border-slate-800/80 pb-safe">
         <div className="max-w-lg mx-auto grid grid-cols-5 px-1 pt-1">
           {TABS.map(({ id, key, icon: Icon }) => {
             const active = tab === id;

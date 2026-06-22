@@ -63,9 +63,6 @@ export default function Matches() {
       </button>
       {bracketOpen && <Bracket onClose={() => setBracketOpen(false)} />}
 
-      {/* Üst reklam şeridi */}
-      <AdSlot variant="banner" />
-
       {/* Canlı */}
       {live.length > 0 && (
         <section>

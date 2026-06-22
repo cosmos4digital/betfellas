@@ -10,8 +10,10 @@ input[type="number"]::-webkit-inner-spin-button { -webkit-appearance: none; }
 .pt-safe { padding-top: env(safe-area-inset-top); }
 .pb-safe { padding-bottom: env(safe-area-inset-bottom); }
 .h-safe-top { height: env(safe-area-inset-top); }
-/* Alt sabit barların home-indicator alanı kadar yukarı çıkması için */
-.bottom-safe { bottom: calc(60px + env(safe-area-inset-bottom)); }
+/* Reklam banner'ı yüksekliği (native'de ads.js günceller, web'de 0) */
+:root { --ad-banner-h: 0px; }
+/* Alt sabit barların home-indicator + reklam banner'ı kadar yukarı çıkması için */
+.bottom-safe { bottom: calc(60px + env(safe-area-inset-bottom) + var(--ad-banner-h, 0px)); }
 
 /* alt sheet animasyonu */
 @keyframes sheetUp { from { transform: translateY(24px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }

@@ -1,9 +1,11 @@
 import { useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Clapperboard, Sparkles, Check, Crown, ShieldCheck } from "lucide-react";
+import { Capacitor } from "@capacitor/core";
 import { supabase } from "../lib/supabaseClient";
 import { useApp } from "../context/AppContext";
 import { FRAMES, frameRing } from "../lib/frames";
+import { showRewarded } from "../lib/ads";
 
 const DAILY_AD_LIMIT = 5;
 const AD_REWARD = 50;
@@ -39,8 +41,20 @@ export default function Store() {
   // iki kez çalıştırdığı için ödül çift yazılıyordu. claimedRef bunu kilitler.
   const claimedRef = useRef(false);
 
-  const watchAd = () => {
+  const watchAd = async () => {
     if (adsToday >= DAILY_AD_LIMIT || watching) return;
+
+    // Native (iOS): gerçek AdMob ödüllü reklamı
+    if (Capacitor.isNativePlatform()) {
+      setWatching(true);
+      const ok = await showRewarded();
+      setWatching(false);
+      if (ok) claim();
+      else flash("Reklam yüklenemedi, tekrar dene");
+      return;
+    }
+
+    // Web: 5 sn'lik simülasyon fallback
     claimedRef.current = false;
     setWatching(true);
     setCountdown(5);
