@@ -91,18 +91,23 @@ function Shell() {
       {slipOpen && <BetSlip onClose={() => setSlipOpen(false)} />}
 
       <nav className="fixed bottom-0 inset-x-0 z-30 bg-slate-950/95 backdrop-blur border-t border-slate-800/80 pb-safe">
-        <div className="max-w-lg mx-auto grid grid-cols-5">
+        <div className="max-w-lg mx-auto grid grid-cols-5 px-1 pt-1">
           {TABS.map(({ id, key, icon: Icon }) => {
             const active = tab === id;
             return (
               <button
                 key={id}
                 onClick={() => setTab(id)}
-                className={`flex flex-col items-center gap-0.5 py-2 text-[10px] font-medium transition-colors ${
+                className={`relative flex flex-col items-center gap-1 py-2 text-[10px] font-medium transition-colors ${
                   active ? "text-emerald-400" : "text-slate-500 hover:text-slate-300"
                 }`}
               >
-                <Icon size={19} strokeWidth={active ? 2.4 : 1.8} />
+                <span
+                  className={`absolute top-0 h-0.5 w-8 rounded-full bg-emerald-400 transition-opacity ${
+                    active ? "opacity-100" : "opacity-0"
+                  }`}
+                />
+                <Icon size={20} strokeWidth={active ? 2.4 : 1.8} />
                 {t(key)}
               </button>
             );

@@ -4,6 +4,7 @@ import { Radio, GitBranch, ChevronRight } from "lucide-react";
 import { supabase } from "../lib/supabaseClient";
 import { useApp } from "../context/AppContext";
 import Bracket from "./Bracket";
+import AdSlot from "./AdSlot";
 
 const PICK_LABEL = { home: "1", draw: "X", away: "2" };
 
@@ -62,6 +63,9 @@ export default function Matches() {
       </button>
       {bracketOpen && <Bracket onClose={() => setBracketOpen(false)} />}
 
+      {/* Üst reklam şeridi */}
+      <AdSlot variant="banner" />
+
       {/* Canlı */}
       {live.length > 0 && (
         <section>
@@ -95,15 +99,19 @@ export default function Matches() {
         </div>
       )}
 
-      {Object.entries(byDay).map(([day, dayMatches]) => (
-        <section key={day}>
-          <h2 className="text-xs font-semibold text-slate-500 uppercase tracking-wide mb-2">{day}</h2>
-          <div className="space-y-2">
-            {dayMatches.map((m) => (
-              <MatchRow key={m.id} match={m} slip={slip} onPick={toggleSlip} />
-            ))}
-          </div>
-        </section>
+      {Object.entries(byDay).map(([day, dayMatches], i) => (
+        <div key={day} className="space-y-5">
+          <section>
+            <h2 className="text-xs font-semibold text-slate-500 uppercase tracking-wide mb-2">{day}</h2>
+            <div className="space-y-2">
+              {dayMatches.map((m) => (
+                <MatchRow key={m.id} match={m} slip={slip} onPick={toggleSlip} />
+              ))}
+            </div>
+          </section>
+          {/* Her ikinci gün grubundan sonra araya reklam sıkıştır */}
+          {i % 2 === 1 && i < Object.keys(byDay).length - 1 && <AdSlot variant="inline" />}
+        </div>
       ))}
     </div>
   );
