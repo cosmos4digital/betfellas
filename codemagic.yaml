@@ -14,6 +14,8 @@ workflows:
       cocoapods: default
       vars:
         BUNDLE_ID: "com.neocosmos.betfellas"
+        VITE_SUPABASE_URL: "https://evolkslxmqfdnpatqldk.supabase.co"
+        VITE_SUPABASE_ANON_KEY: "sb_publishable_yXR0Mlvj2qeXaXyPgSNfXQ_iQXNNtYU"
 
     scripts:
       - name: Paketleri Yükle (npm install)
