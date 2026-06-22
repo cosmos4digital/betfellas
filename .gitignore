@@ -1,3 +1,8 @@
 node_modules
 dist
 .env
+cert_key
+cert_key.pub
+*.p8
+*.p12
+*.mobileprovision

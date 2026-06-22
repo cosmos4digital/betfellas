@@ -6,6 +6,9 @@ workflows:
       app_store_connect: NeoCosmos
 
     environment:
+      groups:
+        # CERTIFICATE_PRIVATE_KEY bu grupta tanımlı olmalı (Codemagic > Environment variables)
+        - ios_signing
       node: latest
       xcode: latest
       cocoapods: default
@@ -28,9 +31,12 @@ workflows:
           set -e
           keychain initialize
 
-          # İmzalama dosyalarını App Store Connect entegrasyonundan çek
+          # İmzalama dosyalarını App Store Connect entegrasyonundan çek.
+          # --certificate-key: sertifikanın kaydedilebilmesi için gereken özel anahtar.
+          # CERTIFICATE_PRIVATE_KEY ortam değişkeni (ios_signing grubu) tanımlı olmalı.
           app-store-connect fetch-signing-files "$BUNDLE_ID" \
             --type IOS_APP_STORE \
+            --certificate-key=@env:CERTIFICATE_PRIVATE_KEY \
             --create
 
           keychain add-certificates
