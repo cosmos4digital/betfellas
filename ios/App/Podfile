@@ -17,6 +17,12 @@ end
 target 'App' do
   capacitor_pods
   # Add your Pods here
+
+  # AdMob: @capacitor-community/admob v6.2.0'in consent modülü eski UMP API'sini
+  # (UMPConsentInformation, sharedInstance vb.) kullanıyor. UMP 3.x bu sembolleri
+  # yeniden adlandırdığı için derleme kırılıyor. Google-Mobile-Ads-SDK zaten plugin
+  # tarafından 11.3.0'a sabit; biz de UMP'yi 2.x'te tutuyoruz.
+  pod 'GoogleUserMessagingPlatform', '< 3.0'
 end
 
 post_install do |installer|
