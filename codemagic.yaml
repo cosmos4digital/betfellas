@@ -2,6 +2,14 @@ workflows:
   ios-app:
     name: BetFellas iOS Build
 
+    triggering:
+      events:
+        - push
+      branch_patterns:
+        - pattern: main
+          include: true
+          source: true
+
     integrations:
       app_store_connect: NeoCosmos
 
