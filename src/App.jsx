@@ -42,7 +42,7 @@ function Shell() {
 
   return (
     <div className="min-h-screen bg-slate-950 text-slate-100 flex flex-col">
-      <header className="sticky top-0 z-30 bg-slate-950/85 backdrop-blur border-b border-slate-800/80">
+      <header className="sticky top-0 z-30 bg-slate-950/85 backdrop-blur border-b border-slate-800/80 pt-safe">
         <div className="max-w-lg mx-auto px-4 h-14 flex items-center justify-between gap-3">
           <div className="flex items-center gap-1.5 shrink-0">
             <img src="/logo-mark.png" alt="BetFellas" className="w-7 h-7 rounded-md" />
@@ -76,7 +76,7 @@ function Shell() {
       {slip.length > 0 && (
         <button
           onClick={() => setSlipOpen(true)}
-          className="fixed bottom-[60px] inset-x-0 z-40"
+          className="fixed bottom-safe inset-x-0 z-40"
         >
           <div className="max-w-lg mx-auto px-3 pb-1.5">
             <div className="flex items-center gap-3 bg-emerald-600 hover:bg-emerald-500 transition rounded-xl px-4 py-3 shadow-lg shadow-emerald-950/50">
@@ -90,7 +90,7 @@ function Shell() {
       )}
       {slipOpen && <BetSlip onClose={() => setSlipOpen(false)} />}
 
-      <nav className="fixed bottom-0 inset-x-0 z-30 bg-slate-950/95 backdrop-blur border-t border-slate-800/80">
+      <nav className="fixed bottom-0 inset-x-0 z-30 bg-slate-950/95 backdrop-blur border-t border-slate-800/80 pb-safe">
         <div className="max-w-lg mx-auto grid grid-cols-5">
           {TABS.map(({ id, key, icon: Icon }) => {
             const active = tab === id;
