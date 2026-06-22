@@ -9,17 +9,10 @@ workflows:
       node: latest
       xcode: latest
       cocoapods: default
+      vars:
+        BUNDLE_ID: "com.neocosmos.betfellas"
 
     scripts:
-      - name: Set up signing
-        script: |
-          keychain initialize
-          app-store-connect fetch-signing-files "com.neocosmos.betfellas" \
-            --type IOS_APP_STORE \
-            --create
-          keychain add-certificates
-          xcode-project use-profiles
-
       - name: Paketleri Yükle (npm install)
         script: npm install
 
@@ -30,15 +23,43 @@ workflows:
         script: |
           cd ios/App && pod install
 
+      - name: Set up signing
+        script: |
+          set -e
+          keychain initialize
+
+          # İmzalama dosyalarını App Store Connect entegrasyonundan çek
+          app-store-connect fetch-signing-files "$BUNDLE_ID" \
+            --type IOS_APP_STORE \
+            --create
+
+          keychain add-certificates
+
+          # Çekilen profil ve sertifikaları doğrula; yoksa anlaşılır hatayla dur
+          PROFILE_DIR="$HOME/Library/MobileDevice/Provisioning Profiles"
+          PROFILE_COUNT=$(ls "$PROFILE_DIR"/*.mobileprovision 2>/dev/null | wc -l | tr -d ' ')
+          echo "Bulunan provisioning profile sayısı: $PROFILE_COUNT"
+          if [ "$PROFILE_COUNT" -eq 0 ]; then
+            echo "HATA: '$BUNDLE_ID' için App Store dağıtım profili çekilemedi."
+            echo "Codemagic > Team/App settings > Integrations bölümünde 'NeoCosmos' App Store Connect"
+            echo "API anahtarının 'App Manager' yetkisine sahip olduğunu ve doğru ekibe bağlı olduğunu kontrol edin."
+            exit 1
+          fi
+
+          # Çekilen profilleri Xcode projesine uygula (manuel imzalamaya geçer)
+          xcode-project use-profiles
+
       - name: iOS Projesini Derle ve İmzala
         script: |
-          xcode-project use-profiles
+          set -e
           xcode-project build-ipa \
             --workspace "ios/App/App.xcworkspace" \
             --scheme "App"
 
     artifacts:
       - build/ios/ipa/*.ipa
+      - /tmp/xcodebuild_logs/*.log
+      - build/ios/xcarchive/*.xcarchive
 
     publishing:
       app_store_connect:
