@@ -173,6 +173,7 @@
     "champion": "Şampiyon",
     "placed": "yerleşti",
     "hint": "Son 32 slotlarına grup kurallarına göre takımları yerleştir, sonra üst tura çıkacak takıma dokun.",
+    "pickWinnerHint": "Üst tura çıkacak takıma dokun.",
     "r32": "Son 32",
     "r16": "Son 16",
     "qf": "Çeyrek",

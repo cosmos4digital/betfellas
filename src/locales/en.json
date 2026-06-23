@@ -173,6 +173,7 @@
     "champion": "Champion",
     "placed": "placed",
     "hint": "Place teams into the Round of 32 slots by group rules, then tap the team advancing each round.",
+    "pickWinnerHint": "Tap the team advancing to the next round.",
     "r32": "R32",
     "r16": "R16",
     "qf": "QF",

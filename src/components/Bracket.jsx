@@ -1,4 +1,4 @@
-import { useEffect, useLayoutEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { X, Download, RotateCcw, Search } from "lucide-react";
 import html2canvas from "html2canvas";
@@ -66,6 +66,19 @@ const SIDES = {
   R: { off: 16, rounds: [{ k: "32", n: 8 }, { k: "16", n: 4 }, { k: "qf", n: 2 }, { k: "sf", n: 1 }] },
 };
 
+// Mobil tur tur görünüm: her adım = bir tur. 0..3 normal turlar, 4 = final.
+const STEPS = [{ ri: 0, key: "32" }, { ri: 1, key: "16" }, { ri: 2, key: "qf" }, { ri: 3, key: "sf" }, { ri: 4, key: "final" }];
+
+// Bir turdaki tüm eşleşmeler (önce sol kanat, sonra sağ).
+const tiesForRound = (ri) => {
+  const out = [];
+  for (const side of ["L", "R"]) {
+    const n = SIDES[side].rounds[ri].n;
+    for (let pos = 1; pos <= n; pos++) out.push({ side, pos });
+  }
+  return out;
+};
+
 export default function Bracket({ onClose }) {
   const { t, i18n } = useTranslation();
   const { session, profile } = useApp();
@@ -73,25 +86,15 @@ export default function Bracket({ onClose }) {
   const [picker, setPicker] = useState(null);
   const [saving, setSaving] = useState(false);
   const shotRef = useRef(null);
-  const wrapRef = useRef(null);
-  // Bracket genişliği sabit (min-w-[1120px]); telefon ekranına otomatik
-  // sığdır ki yatay kaydırma olmasın, hepsi tek bakışta görünsün.
-  // PNG export anında (shooting) ölçek kaldırılır -> tam çözünürlük.
-  const [fit, setFit] = useState({ scale: 1, w: 0, h: 0 });
-  const [shooting, setShooting] = useState(false);
+  // Mobil: tur tur ilerleyen okunaklı görünüm (Son 32 -> Final).
+  // Eski yatay ağaç yalnızca PNG export için ekran dışında render edilir.
+  const [step, setStep] = useState(0);
 
-  useLayoutEffect(() => {
-    const measure = () => {
-      const wrap = wrapRef.current, node = shotRef.current;
-      if (!wrap || !node) return;
-      const avail = wrap.clientWidth;
-      const cw = node.scrollWidth || 1;
-      const s = Math.min(1, avail / cw);
-      setFit({ scale: s, w: cw * s, h: node.scrollHeight * s });
-    };
-    measure();
-    window.addEventListener("resize", measure);
-    return () => window.removeEventListener("resize", measure);
+  // Bracket açıkken arka plandaki maç listesi kaymasın.
+  useEffect(() => {
+    const prev = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    return () => { document.body.style.overflow = prev; };
   }, []);
 
   useEffect(() => {
@@ -168,21 +171,16 @@ export default function Bracket({ onClose }) {
 
   const share = async () => {
     await save();
-    // Ölçeği kaldır (tam boy), iki frame bekle ki DOM uygulasın, sonra çek.
-    setShooting(true);
-    await new Promise((r) => requestAnimationFrame(() => requestAnimationFrame(r)));
-    try {
-      const canvas = await html2canvas(shotRef.current, { backgroundColor: "#020617", scale: 2 });
-      const link = document.createElement("a");
-      link.download = `betfellas-${profile?.username}.png`;
-      link.href = canvas.toDataURL("image/png");
-      link.click();
-    } finally {
-      setShooting(false);
-    }
+    // Tam ağaç ekran dışında her zaman render ediliyor -> tam çözünürlükte çek.
+    const canvas = await html2canvas(shotRef.current, { backgroundColor: "#020617", scale: 2 });
+    const link = document.createElement("a");
+    link.download = `betfellas-${profile?.username}.png`;
+    link.href = canvas.toDataURL("image/png");
+    link.click();
   };
 
   const labels = { "32": t("bracket.r32"), "16": t("bracket.r16"), qf: t("bracket.qf"), sf: t("bracket.sf") };
+  const stepLabel = { "32": t("bracket.r32"), "16": t("bracket.r16"), qf: t("bracket.qf"), sf: t("bracket.sf"), final: t("bracket.final") };
 
   return (
     <div className="fixed inset-0 z-50 bg-slate-950 overflow-auto">
@@ -197,12 +195,64 @@ export default function Bracket({ onClose }) {
         </div>
       </div>
 
-      <p className="text-xs text-slate-500 px-4 pt-3">{t("bracket.hint")} ({filled}/32)</p>
+      {/* Tur seçici */}
+      <div className="px-3 pt-3">
+        <div className="flex gap-1 bg-slate-900 border border-slate-800 rounded-xl p-1">
+          {STEPS.map((s, i) => (
+            <button
+              key={s.key}
+              onClick={() => setStep(i)}
+              className={`flex-1 py-1.5 rounded-lg text-[11px] font-semibold transition ${
+                step === i ? "bg-emerald-600 text-white" : "text-slate-400 hover:text-slate-200"
+              }`}
+            >
+              {stepLabel[s.key]}
+            </button>
+          ))}
+        </div>
+      </div>
 
-      <div ref={wrapRef} className={`flex justify-center ${shooting ? "overflow-x-auto" : ""}`}>
-        <div style={shooting ? undefined : { width: fit.w, height: fit.h, overflow: "hidden" }}>
-          <div style={shooting ? undefined : { transform: `scale(${fit.scale})`, transformOrigin: "top left" }}>
-            <div ref={shotRef} className="p-4 min-w-[1120px]">
+      <p className="text-xs text-slate-500 px-4 pt-2.5">
+        {step === 0 ? `${t("bracket.hint")} (${filled}/32)` : t("bracket.pickWinnerHint")}
+      </p>
+
+      {/* Aktif turun eşleşmeleri (okunaklı, dikey liste) */}
+      <div className="px-4 pt-3 pb-4 max-w-lg mx-auto space-y-2.5">
+        {step < 4 ? (
+          tiesForRound(STEPS[step].ri).map(({ side, pos }) => {
+            const ri = STEPS[step].ri;
+            const [a, b] = pair(side, ri, pos);
+            const selKey = side + SIDES[side].rounds[ri].k;
+            const common = {
+              a, b, selected: picks[selKey]?.[pos], t, lang: i18n.language, big: true,
+              onPick: (team) => pickWinner(side, ri, pos, team),
+            };
+            if (ri === 0) {
+              const off = SIDES[side].off;
+              const slotA = off + pos * 2 - 1, slotB = off + pos * 2;
+              return (
+                <Tie key={side + pos} {...common} editable
+                  hintA={hintLabel(SLOTS[slotA - 1].label, i18n.language)} hintB={hintLabel(SLOTS[slotB - 1].label, i18n.language)}
+                  onPickSlotA={() => setPicker(slotA)} onPickSlotB={() => setPicker(slotB)} />
+              );
+            }
+            return <Tie key={side + pos} {...common} />;
+          })
+        ) : (
+          <>
+            <Tie a={finalists[0]} b={finalists[1]} selected={champion} accent big t={t} lang={i18n.language}
+              onPick={(team) => setPicks((old) => ({ ...structuredClone(old), F: { 1: team } }))} />
+            <div className={`rounded-xl border p-4 text-center ${champion ? "border-amber-400/50 bg-amber-400/10" : "border-slate-800 bg-slate-900"}`}>
+              <p className="text-[10px] text-slate-500 tracking-widest mb-1">{t("bracket.champion").toLocaleUpperCase("en-US")}</p>
+              <p className={`text-xl font-bold ${champion ? "text-amber-300" : "text-slate-700"}`}>{champion ? teamName(champion, i18n.language) : "—"}</p>
+            </div>
+          </>
+        )}
+      </div>
+
+      {/* PNG export için tam ağaç — ekran dışında, görünmez */}
+      <div aria-hidden className="fixed top-0 -left-[200vw] pointer-events-none">
+        <div ref={shotRef} className="p-4 min-w-[1120px] bg-slate-950">
           <div className="flex items-center justify-between mb-3">
             <span className="text-sm font-bold text-slate-100">BetFellas · 2026</span>
             <span className="text-xs text-slate-500">@{profile?.username}</span>
@@ -219,8 +269,6 @@ export default function Bracket({ onClose }) {
               </div>
             </div>
             <Side side="R" picks={picks} pair={pair} onOpenPicker={setPicker} onWin={pickWinner} labels={labels} t={t} lang={i18n.language} mirror />
-          </div>
-            </div>
           </div>
         </div>
       </div>
@@ -264,25 +312,27 @@ function Side({ side, picks, pair, onOpenPicker, onWin, labels, t, lang, mirror 
   return <div className="flex gap-2">{mirror ? cols.reverse() : cols}</div>;
 }
 
-function Tie({ a, b, selected, onPick, editable, accent, hintA, hintB, onPickSlotA, onPickSlotB, t, lang }) {
+function Tie({ a, b, selected, onPick, editable, accent, hintA, hintB, onPickSlotA, onPickSlotB, t, lang, big }) {
+  const pad = big ? "px-3.5 py-3" : "px-2.5 py-1.5";
+  const txt = big ? "text-sm" : "text-[11px]";
   const Row = ({ team, idx, hint, onPickSlot }) => {
     const isSel = selected === team && !!team;
     const winnerCls = accent ? "bg-amber-400/15 text-amber-300 font-semibold" : "bg-emerald-500/15 text-emerald-300 font-semibold";
     if (editable && !team) {
       return (
-        <button onClick={onPickSlot} className={`w-full px-2.5 py-1.5 text-left ${idx === 0 ? "border-b border-slate-800" : ""}`}>
-          <span className="text-[11px] text-emerald-400 font-medium">{t("bracket.selectTeam")}</span>
-          {hint && <span className="block text-[9px] text-slate-600 leading-tight">{hint}</span>}
+        <button onClick={onPickSlot} className={`w-full ${pad} text-left ${idx === 0 ? "border-b border-slate-800" : ""}`}>
+          <span className={`${txt} text-emerald-400 font-medium`}>{t("bracket.selectTeam")}</span>
+          {hint && <span className={`block ${big ? "text-[11px]" : "text-[9px]"} text-slate-600 leading-tight`}>{hint}</span>}
         </button>
       );
     }
     return (
       <div className={`flex items-stretch ${idx === 0 ? "border-b border-slate-800" : ""}`}>
         <button disabled={!team} onClick={() => team && onPick(team)}
-          className={`flex-1 px-2.5 py-1.5 text-left text-[11px] truncate transition ${!team ? "text-slate-700" : isSel ? winnerCls : "text-slate-300 hover:bg-slate-800/60"}`}>
+          className={`flex-1 ${pad} text-left ${txt} truncate transition ${!team ? "text-slate-700" : isSel ? winnerCls : "text-slate-300 hover:bg-slate-800/60"}`}>
           {team ? teamName(team, lang) : "—"}
         </button>
-        {editable && team && (<button onClick={onPickSlot} className="px-2 text-slate-600 hover:text-emerald-400 text-xs">✎</button>)}
+        {editable && team && (<button onClick={onPickSlot} className={`px-3 text-slate-600 hover:text-emerald-400 ${big ? "text-sm" : "text-xs"}`}>✎</button>)}
       </div>
     );
   };
