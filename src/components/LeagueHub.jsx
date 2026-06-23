@@ -38,7 +38,7 @@ export default function LeagueHub({ onEnter }) {
   const inputCls = "w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 text-slate-100 placeholder-slate-600 focus:outline-none focus:border-emerald-500";
 
   return (
-    <div className="min-h-screen bg-slate-950 px-4 py-10">
+    <div className="min-h-screen bg-slate-950 px-4 pb-10 pt-[calc(2.5rem+env(safe-area-inset-top))]">
       <div className="max-w-sm mx-auto space-y-6">
         <div className="flex items-start justify-between">
           <div>
