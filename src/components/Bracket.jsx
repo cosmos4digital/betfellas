@@ -4,24 +4,7 @@ import { X, Download, RotateCcw, Search } from "lucide-react";
 import html2canvas from "html2canvas";
 import { supabase } from "../lib/supabaseClient";
 import { useApp } from "../context/AppContext";
-
-// Takım adlarının İngilizce karşılıkları (kayıt TR isimle, gösterim dile göre)
-const TEAM_EN = {
-  "ABD": "USA", "Meksika": "Mexico", "Kanada": "Canada", "Arjantin": "Argentina",
-  "Brezilya": "Brazil", "Fransa": "France", "İngiltere": "England", "İspanya": "Spain",
-  "Portekiz": "Portugal", "Almanya": "Germany", "Hollanda": "Netherlands", "Belçika": "Belgium",
-  "Hırvatistan": "Croatia", "İtalya": "Italy", "Fas": "Morocco", "Senegal": "Senegal",
-  "Japonya": "Japan", "Güney Kore": "South Korea", "Avustralya": "Australia", "İran": "Iran",
-  "Suudi Arabistan": "Saudi Arabia", "Katar": "Qatar", "Özbekistan": "Uzbekistan", "Ürdün": "Jordan",
-  "Ekvador": "Ecuador", "Uruguay": "Uruguay", "Kolombiya": "Colombia", "Paraguay": "Paraguay",
-  "Norveç": "Norway", "İskoçya": "Scotland", "Avusturya": "Austria", "İsviçre": "Switzerland",
-  "Türkiye": "Türkiye", "Gana": "Ghana", "Fildişi Sahili": "Ivory Coast", "Tunus": "Tunisia",
-  "Cezayir": "Algeria", "Mısır": "Egypt", "Güney Afrika": "South Africa", "Yeşil Burun": "Cabo Verde",
-  "Yeni Zelanda": "New Zealand", "İsveç": "Sweden", "Irak": "Iraq", "Çekya": "Czechia",
-  "Bosna Hersek": "Bosnia & Herzegovina", "Kongo DC": "DR Congo", "Haiti": "Haiti",
-  "Curaçao": "Curaçao", "Panama": "Panama",
-};
-const teamName = (tr, lang) => (lang?.startsWith("en") && TEAM_EN[tr]) ? TEAM_EN[tr] : tr;
+import { TEAM_EN, localizeTeam as teamName } from "../lib/teams";
 
 // Slot ipucu: "A 2.si" / "A/B/C 3.sü" -> EN: "A 2nd" / "A/B/C 3rd"
 const hintLabel = (label, lang) => {
@@ -176,12 +159,14 @@ export default function Bracket({ onClose }) {
 
   return (
     <div className="fixed inset-0 z-50 bg-slate-950 overflow-auto">
-      <div className="sticky top-0 z-10 bg-slate-950/90 backdrop-blur border-b border-slate-800 px-4 h-14 flex items-center justify-between">
-        <span className="font-semibold text-slate-100">{t("bracket.title")}</span>
-        <div className="flex items-center gap-2">
-          <button onClick={() => setPicks({ slots: {} })} className="text-slate-500 hover:text-slate-300 p-1.5"><RotateCcw size={16} /></button>
-          <button onClick={share} className="flex items-center gap-1.5 text-xs font-semibold text-white bg-emerald-600 hover:bg-emerald-500 px-3 py-2 rounded-lg transition"><Download size={14} /> {t("bracket.pngDownload")}</button>
-          <button onClick={async () => { await save(); onClose(); }} className="text-slate-400 hover:text-slate-200 p-1.5"><X size={20} /></button>
+      <div className="sticky top-0 z-10 bg-slate-950/90 backdrop-blur border-b border-slate-800 pt-safe">
+        <div className="px-4 h-14 flex items-center justify-between gap-2">
+          <span className="font-semibold text-slate-100 truncate">{t("bracket.title")}</span>
+          <div className="flex items-center gap-2 shrink-0">
+            <button onClick={() => setPicks({ slots: {} })} className="text-slate-500 hover:text-slate-300 p-1.5"><RotateCcw size={16} /></button>
+            <button onClick={share} className="flex items-center gap-1.5 text-xs font-semibold text-white bg-emerald-600 hover:bg-emerald-500 px-3 py-2 rounded-lg transition"><Download size={14} /> {t("bracket.pngDownload")}</button>
+            <button onClick={async () => { await save(); onClose(); }} className="text-slate-400 hover:text-slate-200 p-1.5"><X size={20} /></button>
+          </div>
         </div>
       </div>
 

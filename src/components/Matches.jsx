@@ -3,13 +3,14 @@ import { useTranslation } from "react-i18next";
 import { Radio, GitBranch, ChevronRight } from "lucide-react";
 import { supabase } from "../lib/supabaseClient";
 import { useApp } from "../context/AppContext";
+import { localizeTeam } from "../lib/teams";
 import Bracket from "./Bracket";
 import AdSlot from "./AdSlot";
 
 const PICK_LABEL = { home: "1", draw: "X", away: "2" };
 
 export default function Matches() {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const { slip, toggleSlip } = useApp();
   const [matches, setMatches] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -80,11 +81,11 @@ export default function Matches() {
             {live.map((m) => (
               <div key={m.id} className="flex items-center gap-3 bg-slate-900 border border-slate-800 rounded-xl px-4 py-3">
                 <Radio size={14} className="text-red-500 shrink-0" />
-                <span className="flex-1 text-sm text-slate-200 text-right truncate">{m.team1}</span>
+                <span className="flex-1 text-sm text-slate-200 text-right truncate">{localizeTeam(m.team1, i18n.language)}</span>
                 <span className="text-base font-bold text-slate-100 tabular-nums bg-slate-950 border border-slate-800 rounded-lg px-2.5 py-0.5">
                   {m.score1 ?? 0}–{m.score2 ?? 0}
                 </span>
-                <span className="flex-1 text-sm text-slate-200 truncate">{m.team2}</span>
+                <span className="flex-1 text-sm text-slate-200 truncate">{localizeTeam(m.team2, i18n.language)}</span>
               </div>
             ))}
           </div>
@@ -105,7 +106,7 @@ export default function Matches() {
             <h2 className="text-xs font-semibold text-slate-500 uppercase tracking-wide mb-2">{day}</h2>
             <div className="space-y-2">
               {dayMatches.map((m) => (
-                <MatchRow key={m.id} match={m} slip={slip} onPick={toggleSlip} />
+                <MatchRow key={m.id} match={m} slip={slip} onPick={toggleSlip} lang={i18n.language} />
               ))}
             </div>
           </section>
@@ -117,7 +118,7 @@ export default function Matches() {
   );
 }
 
-function MatchRow({ match, slip, onPick }) {
+function MatchRow({ match, slip, onPick, lang }) {
   const time = new Date(match.match_time).toLocaleTimeString("tr-TR", { hour: "2-digit", minute: "2-digit" });
   const selected = slip.find((s) => s.match.id === match.id)?.bet_type;
   const odds = [
@@ -131,8 +132,8 @@ function MatchRow({ match, slip, onPick }) {
       <div className="flex items-center gap-3 mb-3">
         <span className="text-xs text-slate-500 tabular-nums w-11 shrink-0">{time}</span>
         <div className="flex-1 min-w-0 text-sm">
-          <p className="font-medium text-slate-100 truncate">{match.team1}</p>
-          <p className="font-medium text-slate-100 truncate">{match.team2}</p>
+          <p className="font-medium text-slate-100 truncate">{localizeTeam(match.team1, lang)}</p>
+          <p className="font-medium text-slate-100 truncate">{localizeTeam(match.team2, lang)}</p>
         </div>
       </div>
       <div className="grid grid-cols-3 gap-1.5">

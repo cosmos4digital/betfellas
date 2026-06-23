@@ -75,6 +75,11 @@
     "reported": "Reported. We'll review within 24 hours.",
     "reportError": "Couldn't report, try again."
   },
+  "ad": {
+    "label": "Ad",
+    "sponsored": "Sponsored",
+    "space": "BetFellas ad space · your ad could be here"
+  },
   "leaderboard": {
     "title": "Standings",
     "you": "you",

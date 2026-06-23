@@ -1,4 +1,5 @@
 import { Megaphone } from "lucide-react";
+import { useTranslation } from "react-i18next";
 
 /**
  * Reklam alanı (placeholder).
@@ -12,6 +13,7 @@ import { Megaphone } from "lucide-react";
  *   "inline" -> maç listeleri arasına sıkışan ince şerit
  */
 export default function AdSlot({ variant = "inline" }) {
+  const { t } = useTranslation();
   const isBanner = variant === "banner";
 
   return (
@@ -21,7 +23,7 @@ export default function AdSlot({ variant = "inline" }) {
       }`}
     >
       <span className="absolute top-2 right-2 text-[9px] font-semibold uppercase tracking-wider text-slate-600 bg-slate-950/70 border border-slate-800 rounded px-1.5 py-0.5">
-        Reklam
+        {t("ad.label")}
       </span>
       <div className="flex items-center gap-3">
         <div className="shrink-0 w-9 h-9 rounded-lg bg-slate-800/70 flex items-center justify-center">
@@ -29,10 +31,10 @@ export default function AdSlot({ variant = "inline" }) {
         </div>
         <div className="min-w-0">
           <p className={`font-semibold text-slate-300 truncate ${isBanner ? "text-sm" : "text-xs"}`}>
-            Sponsorlu alan
+            {t("ad.sponsored")}
           </p>
           <p className="text-[11px] text-slate-600 truncate">
-            BetFellas reklam alanı · burada reklamınız olabilir
+            {t("ad.space")}
           </p>
         </div>
       </div>

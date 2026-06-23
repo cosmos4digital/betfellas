@@ -75,6 +75,11 @@
     "reported": "Bildirildi. 24 saat içinde incelenecek.",
     "reportError": "Bildirilemedi, tekrar dene."
   },
+  "ad": {
+    "label": "Reklam",
+    "sponsored": "Sponsorlu alan",
+    "space": "BetFellas reklam alanı · burada reklamınız olabilir"
+  },
   "leaderboard": {
     "title": "Sıralama",
     "you": "sen",
