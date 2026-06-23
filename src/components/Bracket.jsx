@@ -250,8 +250,10 @@ export default function Bracket({ onClose }) {
         )}
       </div>
 
-      {/* PNG export için tam ağaç — ekran dışında, görünmez */}
-      <div aria-hidden className="fixed top-0 -left-[200vw] pointer-events-none">
+      {/* PNG export için tam ağaç — sıfır boyutlu, overflow:hidden bir kutuda
+          tamamen kırpılır. Böylece ekranda görünmez VE yatay kaydırma alanı
+          oluşturmaz (eski -left-[200vw] iOS WebView'da ağacı sızdırıyordu). */}
+      <div aria-hidden style={{ position: "fixed", left: 0, top: 0, width: 0, height: 0, overflow: "hidden", pointerEvents: "none" }}>
         <div ref={shotRef} className="p-4 min-w-[1120px] bg-slate-950">
           <div className="flex items-center justify-between mb-3">
             <span className="text-sm font-bold text-slate-100">BetFellas · 2026</span>

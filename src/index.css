@@ -9,6 +9,8 @@ body { font-feature-settings: "tnum"; }
    yatay kaydırılabilir yapıp içeriği sağdan kesiyordu ("web gibi kaymış").
    Sayfayı viewport genişliğine kilitle, yatay taşmayı tamamen kapat. */
 html, body, #root { width: 100%; max-width: 100%; overflow-x: hidden; }
+/* Yatay zıplama/rubber-band'i kapat */
+html, body { position: relative; overscroll-behavior-x: none; }
 input[type="number"]::-webkit-inner-spin-button { -webkit-appearance: none; }
 
 /* iOS güvenli alan (çentik / Dynamic Island / home indicator) yardımcıları */
