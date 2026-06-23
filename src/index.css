@@ -4,6 +4,11 @@
 
 html { background: #020617; } /* slate-950 */
 body { font-feature-settings: "tnum"; }
+
+/* iOS WebView yatay kayma fix'i: tek bir taşan eleman bile tüm sayfayı
+   yatay kaydırılabilir yapıp içeriği sağdan kesiyordu ("web gibi kaymış").
+   Sayfayı viewport genişliğine kilitle, yatay taşmayı tamamen kapat. */
+html, body, #root { width: 100%; max-width: 100%; overflow-x: hidden; }
 input[type="number"]::-webkit-inner-spin-button { -webkit-appearance: none; }
 
 /* iOS güvenli alan (çentik / Dynamic Island / home indicator) yardımcıları */
