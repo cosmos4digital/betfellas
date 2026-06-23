@@ -69,7 +69,11 @@
     "madeCoupon": "kupon yaptı",
     "wonCoupon": "{{count}} maçlık kuponunu tutturdu",
     "wonSingle": "tahminini tutturdu",
-    "lostCoupon": "{{count}} maçlık kuponu yattı"
+    "lostCoupon": "{{count}} maçlık kuponu yattı",
+    "report": "Bildir",
+    "reportConfirm": "Bu mesajı uygunsuz içerik olarak bildir?",
+    "reported": "Bildirildi. 24 saat içinde incelenecek.",
+    "reportError": "Bildirilemedi, tekrar dene."
   },
   "leaderboard": {
     "title": "Sıralama",
@@ -105,7 +109,11 @@
     "noOpen": "Açık kuponun yok. Maçlardan oran seçerek kupon yapabilirsin.",
     "noHistory": "Sonuçlanan kupon henüz yok.",
     "noResultYet": "Henüz sonuçlanan kupon yok",
-    "wonOf": "{{won}} kazanan / {{total}} kupon"
+    "wonOf": "{{won}} kazanan / {{total}} kupon",
+    "block": "Kullanıcıyı engelle",
+    "blockConfirm": "{{name}} adlı kullanıcıyı engelle? Mesajlarını artık görmeyeceksin.",
+    "blocked": "Kullanıcı engellendi.",
+    "blockError": "Engellenemedi, tekrar dene."
   },
   "coupon": {
     "open": "Açık",

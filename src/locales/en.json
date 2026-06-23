@@ -69,7 +69,11 @@
     "madeCoupon": "placed a slip",
     "wonCoupon": "won a {{count}}-match slip",
     "wonSingle": "won their prediction",
-    "lostCoupon": "lost a {{count}}-match slip"
+    "lostCoupon": "lost a {{count}}-match slip",
+    "report": "Report",
+    "reportConfirm": "Report this message as objectionable content?",
+    "reported": "Reported. We'll review within 24 hours.",
+    "reportError": "Couldn't report, try again."
   },
   "leaderboard": {
     "title": "Standings",
@@ -105,7 +109,11 @@
     "noOpen": "No open slips. Pick odds from matches to build one.",
     "noHistory": "No settled slips yet.",
     "noResultYet": "No settled slips yet",
-    "wonOf": "{{won}} won / {{total}} slips"
+    "wonOf": "{{won}} won / {{total}} slips",
+    "block": "Block user",
+    "blockConfirm": "Block {{name}}? You will no longer see their messages.",
+    "blocked": "User blocked.",
+    "blockError": "Couldn't block, try again."
   },
   "coupon": {
     "open": "Open",

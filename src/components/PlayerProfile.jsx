@@ -1,15 +1,27 @@
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { X, Crown } from "lucide-react";
+import { X, Crown, Ban } from "lucide-react";
 import { supabase } from "../lib/supabaseClient";
 import { useApp } from "../context/AppContext";
 import { frameRing } from "../lib/frames";
 import CouponCard from "./CouponCard";
 
-export default function PlayerProfile({ userId, onClose }) {
+export default function PlayerProfile({ userId, onClose, onBlocked }) {
   const { t } = useTranslation();
-  const { league } = useApp();
+  const { league, session } = useApp();
   const [data, setData] = useState(null);
+
+  const isSelf = userId === session?.user?.id;
+
+  const block = async () => {
+    const name = data?.profile?.username ?? "";
+    if (!window.confirm(t("profile.blockConfirm", { name }))) return;
+    const { error } = await supabase
+      .from("user_blocks")
+      .insert({ blocker_id: session.user.id, blocked_id: userId });
+    if (error) { alert(t("profile.blockError")); return; }
+    onBlocked?.(userId);
+  };
 
   useEffect(() => {
     (async () => {
@@ -61,6 +73,15 @@ export default function PlayerProfile({ userId, onClose }) {
 
             <Section title={t("profile.openCoupons")} coupons={pending} empty={t("profile.noOpen")} />
             <Section title={t("profile.history")} coupons={past} empty={t("profile.noHistory")} />
+
+            {!isSelf && (
+              <button
+                onClick={block}
+                className="w-full flex items-center justify-center gap-2 mt-1 py-2.5 rounded-xl text-sm font-medium text-rose-400 bg-rose-500/5 border border-rose-500/20 hover:bg-rose-500/10 transition"
+              >
+                <Ban size={15} /> {t("profile.block")}
+              </button>
+            )}
           </>
         )}
       </div>

@@ -1,6 +1,6 @@
 import { useEffect, useState, useRef, useCallback } from "react";
 import { useTranslation } from "react-i18next";
-import { Send, Receipt, BadgeCheck, HeartCrack } from "lucide-react";
+import { Send, Receipt, BadgeCheck, HeartCrack, Flag } from "lucide-react";
 import { supabase } from "../lib/supabaseClient";
 import { useApp } from "../context/AppContext";
 import PlayerProfile from "./PlayerProfile";
@@ -14,7 +14,11 @@ export default function Feed() {
   const [messages, setMessages] = useState([]);
   const [text, setText] = useState("");
   const [openUser, setOpenUser] = useState(null);
+  const [blocked, setBlocked] = useState(() => new Set());
+  const [toast, setToast] = useState("");
   const bottomRef = useRef(null);
+
+  const flash = (msg) => { setToast(msg); setTimeout(() => setToast(""), 2500); };
 
   const load = useCallback(async () => {
     const { data } = await supabase
@@ -25,6 +29,18 @@ export default function Feed() {
       .limit(100);
     setMessages(data ?? []);
   }, [league.id]);
+
+  // Engellediğim kullanıcılar — sunucu RLS'i zaten gizliyor ama
+  // gerçek-zamanlı mesajlar yeniden yüklenene kadar istemcide de eleriz.
+  const loadBlocks = useCallback(async () => {
+    const { data } = await supabase
+      .from("user_blocks")
+      .select("blocked_id")
+      .eq("blocker_id", session.user.id);
+    setBlocked(new Set((data ?? []).map((b) => b.blocked_id)));
+  }, [session.user.id]);
+
+  useEffect(() => { loadBlocks(); }, [loadBlocks]);
 
   useEffect(() => {
     load();
@@ -70,17 +86,39 @@ export default function Feed() {
     if (error) load(); // sunucu reddederse gerçek duruma dön
   };
 
+  // Uygunsuz içeriği bildir (App Store Guideline 1.2)
+  const report = async (messageId) => {
+    if (!window.confirm(t("feed.reportConfirm"))) return;
+    const { error } = await supabase.rpc("report_message", { _message_id: messageId });
+    flash(error ? t("feed.reportError") : t("feed.reported"));
+  };
+
+  // PlayerProfile'dan biri engellenince: anında listeden düş + duvarı yenile
+  const onBlocked = async (userId) => {
+    setBlocked((s) => new Set(s).add(userId));
+    setOpenUser(null);
+    flash(t("profile.blocked"));
+    load();
+  };
+
+  const visible = messages.filter((m) => !m.user_id || !blocked.has(m.user_id));
+
   return (
     <div className="flex flex-col h-[calc(100vh-9.5rem)]">
+      {toast && (
+        <div className="fixed top-16 left-1/2 -translate-x-1/2 z-50 bg-slate-800 border border-slate-700 text-slate-100 text-sm px-4 py-2 rounded-full shadow-lg">
+          {toast}
+        </div>
+      )}
       <div className="flex-1 overflow-y-auto space-y-2.5 pr-1">
-        {messages.length === 0 && (
+        {visible.length === 0 && (
           <div className="text-center py-16">
             <p className="text-sm text-slate-400">{t("feed.empty")}</p>
             <p className="text-xs text-slate-600 mt-1">{t("feed.emptyHint")}</p>
           </div>
         )}
-        {messages.map((m) => (
-          <FeedCard key={m.id} msg={m} myId={session.user.id} onReact={react} onOpenUser={setOpenUser} t={t} />
+        {visible.map((m) => (
+          <FeedCard key={m.id} msg={m} myId={session.user.id} onReact={react} onReport={report} onOpenUser={setOpenUser} t={t} />
         ))}
         <div ref={bottomRef} />
       </div>
@@ -101,15 +139,18 @@ export default function Feed() {
         </button>
       </form>
 
-      {openUser && <PlayerProfile userId={openUser} onClose={() => setOpenUser(null)} />}
+      {openUser && <PlayerProfile userId={openUser} onClose={() => setOpenUser(null)} onBlocked={onBlocked} />}
     </div>
   );
 }
 
-function FeedCard({ msg, myId, onReact, onOpenUser, t }) {
+function FeedCard({ msg, myId, onReact, onReport, onOpenUser, t }) {
   const c = msg.content_json ?? {};
   const username = msg.profiles?.username ?? c.username ?? "Bilinmeyen";
   const time = new Date(msg.created_at).toLocaleTimeString("tr-TR", { hour: "2-digit", minute: "2-digit" });
+
+  // Sadece başkasının yazdığı kullanıcı içeriği bildirilebilir (sistem kartları değil)
+  const reportable = msg.user_id && msg.user_id !== myId && (msg.type === "text" || msg.type === "bet_share");
 
   const UserBtn = ({ children, className = "" }) =>
     msg.user_id ? (
@@ -117,12 +158,22 @@ function FeedCard({ msg, myId, onReact, onOpenUser, t }) {
     ) : <span className={className}>{children}</span>;
 
   return (
-    <div className={`rounded-xl px-4 py-3 border ${
+    <div className={`relative rounded-xl px-4 py-3 border ${
       msg.type === "bet_share" ? "bg-slate-900 border-emerald-500/25"
       : msg.type === "system_win" ? "bg-emerald-500/8 border-emerald-500/25"
       : msg.type === "system_loss" ? "bg-rose-500/5 border-rose-500/20"
       : "bg-slate-900 border-slate-800"
     }`}>
+      {reportable && (
+        <button
+          onClick={() => onReport(msg.id)}
+          title={t("feed.report")}
+          aria-label={t("feed.report")}
+          className="absolute top-2 right-2 text-slate-600 hover:text-rose-400 p-1 transition"
+        >
+          <Flag size={13} />
+        </button>
+      )}
       {msg.type === "text" && (
         <>
           <div className="flex items-baseline gap-2">
