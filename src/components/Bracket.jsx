@@ -150,7 +150,7 @@ export default function Bracket({ onClose }) {
     await save();
     const canvas = await html2canvas(shotRef.current, { backgroundColor: "#020617", scale: 2 });
     const link = document.createElement("a");
-    link.download = `kupa-guru-${profile?.username}.png`;
+    link.download = `betfellas-${profile?.username}.png`;
     link.href = canvas.toDataURL("image/png");
     link.click();
   };

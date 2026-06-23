@@ -183,7 +183,7 @@ export default function Store() {
       </div>
 
       <p className="text-[10px] text-slate-600 text-center pb-2">
-        Kupa Guru tamamen eğlence amaçlıdır. GP gerçek para değildir, satın alınamaz ve paraya çevrilemez.
+        {t("store.disclaimer")}
       </p>
     </div>
   );
