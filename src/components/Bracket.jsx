@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { X, Download, RotateCcw, Search } from "lucide-react";
 import html2canvas from "html2canvas";
@@ -73,6 +73,26 @@ export default function Bracket({ onClose }) {
   const [picker, setPicker] = useState(null);
   const [saving, setSaving] = useState(false);
   const shotRef = useRef(null);
+  const wrapRef = useRef(null);
+  // Bracket genişliği sabit (min-w-[1120px]); telefon ekranına otomatik
+  // sığdır ki yatay kaydırma olmasın, hepsi tek bakışta görünsün.
+  // PNG export anında (shooting) ölçek kaldırılır -> tam çözünürlük.
+  const [fit, setFit] = useState({ scale: 1, w: 0, h: 0 });
+  const [shooting, setShooting] = useState(false);
+
+  useLayoutEffect(() => {
+    const measure = () => {
+      const wrap = wrapRef.current, node = shotRef.current;
+      if (!wrap || !node) return;
+      const avail = wrap.clientWidth;
+      const cw = node.scrollWidth || 1;
+      const s = Math.min(1, avail / cw);
+      setFit({ scale: s, w: cw * s, h: node.scrollHeight * s });
+    };
+    measure();
+    window.addEventListener("resize", measure);
+    return () => window.removeEventListener("resize", measure);
+  }, []);
 
   useEffect(() => {
     supabase.from("bracket_picks").select("picks").eq("user_id", session.user.id).maybeSingle()
@@ -148,11 +168,18 @@ export default function Bracket({ onClose }) {
 
   const share = async () => {
     await save();
-    const canvas = await html2canvas(shotRef.current, { backgroundColor: "#020617", scale: 2 });
-    const link = document.createElement("a");
-    link.download = `betfellas-${profile?.username}.png`;
-    link.href = canvas.toDataURL("image/png");
-    link.click();
+    // Ölçeği kaldır (tam boy), iki frame bekle ki DOM uygulasın, sonra çek.
+    setShooting(true);
+    await new Promise((r) => requestAnimationFrame(() => requestAnimationFrame(r)));
+    try {
+      const canvas = await html2canvas(shotRef.current, { backgroundColor: "#020617", scale: 2 });
+      const link = document.createElement("a");
+      link.download = `betfellas-${profile?.username}.png`;
+      link.href = canvas.toDataURL("image/png");
+      link.click();
+    } finally {
+      setShooting(false);
+    }
   };
 
   const labels = { "32": t("bracket.r32"), "16": t("bracket.r16"), qf: t("bracket.qf"), sf: t("bracket.sf") };
@@ -172,8 +199,10 @@ export default function Bracket({ onClose }) {
 
       <p className="text-xs text-slate-500 px-4 pt-3">{t("bracket.hint")} ({filled}/32)</p>
 
-      <div className="overflow-x-auto">
-        <div ref={shotRef} className="p-4 min-w-[1120px]">
+      <div ref={wrapRef} className={`flex justify-center ${shooting ? "overflow-x-auto" : ""}`}>
+        <div style={shooting ? undefined : { width: fit.w, height: fit.h, overflow: "hidden" }}>
+          <div style={shooting ? undefined : { transform: `scale(${fit.scale})`, transformOrigin: "top left" }}>
+            <div ref={shotRef} className="p-4 min-w-[1120px]">
           <div className="flex items-center justify-between mb-3">
             <span className="text-sm font-bold text-slate-100">BetFellas · 2026</span>
             <span className="text-xs text-slate-500">@{profile?.username}</span>
@@ -190,6 +219,8 @@ export default function Bracket({ onClose }) {
               </div>
             </div>
             <Side side="R" picks={picks} pair={pair} onOpenPicker={setPicker} onWin={pickWinner} labels={labels} t={t} lang={i18n.language} mirror />
+          </div>
+            </div>
           </div>
         </div>
       </div>
