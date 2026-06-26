@@ -119,7 +119,10 @@
     "block": "Kullanıcıyı engelle",
     "blockConfirm": "{{name}} adlı kullanıcıyı engelle? Mesajlarını artık görmeyeceksin.",
     "blocked": "Kullanıcı engellendi.",
-    "blockError": "Engellenemedi, tekrar dene."
+    "blockError": "Engellenemedi, tekrar dene.",
+    "unblock": "Engeli kaldır",
+    "unblocked": "Engel kaldırıldı.",
+    "unblockError": "Engel kaldırılamadı, tekrar dene."
   },
   "coupon": {
     "open": "Açık",

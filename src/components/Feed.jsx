@@ -101,6 +101,13 @@ export default function Feed() {
     load();
   };
 
+  // Engel kalkınca: kullanıcının mesajları tekrar görünsün + duvarı yenile
+  const onUnblocked = async (userId) => {
+    setBlocked((s) => { const n = new Set(s); n.delete(userId); return n; });
+    flash(t("profile.unblocked"));
+    load();
+  };
+
   const visible = messages.filter((m) => !m.user_id || !blocked.has(m.user_id));
 
   return (
@@ -139,7 +146,7 @@ export default function Feed() {
         </button>
       </form>
 
-      {openUser && <PlayerProfile userId={openUser} onClose={() => setOpenUser(null)} onBlocked={onBlocked} />}
+      {openUser && <PlayerProfile userId={openUser} onClose={() => setOpenUser(null)} onBlocked={onBlocked} onUnblocked={onUnblocked} />}
     </div>
   );
 }

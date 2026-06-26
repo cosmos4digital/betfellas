@@ -1,31 +1,49 @@
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { X, Crown, Ban } from "lucide-react";
+import { X, Crown, Ban, RotateCcw } from "lucide-react";
 import { supabase } from "../lib/supabaseClient";
 import { useApp } from "../context/AppContext";
 import { frameRing } from "../lib/frames";
 import CouponCard from "./CouponCard";
 
-export default function PlayerProfile({ userId, onClose, onBlocked }) {
+export default function PlayerProfile({ userId, onClose, onBlocked, onUnblocked }) {
   const { t } = useTranslation();
   const { league, session } = useApp();
   const [data, setData] = useState(null);
+  const [blocked, setBlocked] = useState(false);
+  const [busy, setBusy] = useState(false);
 
   const isSelf = userId === session?.user?.id;
 
   const block = async () => {
     const name = data?.profile?.username ?? "";
     if (!window.confirm(t("profile.blockConfirm", { name }))) return;
+    setBusy(true);
     const { error } = await supabase
       .from("user_blocks")
       .insert({ blocker_id: session.user.id, blocked_id: userId });
+    setBusy(false);
     if (error) { alert(t("profile.blockError")); return; }
+    setBlocked(true);
     onBlocked?.(userId);
+  };
+
+  const unblock = async () => {
+    setBusy(true);
+    const { error } = await supabase
+      .from("user_blocks")
+      .delete()
+      .eq("blocker_id", session.user.id)
+      .eq("blocked_id", userId);
+    setBusy(false);
+    if (error) { alert(t("profile.unblockError")); return; }
+    setBlocked(false);
+    onUnblocked?.(userId);
   };
 
   useEffect(() => {
     (async () => {
-      const [{ data: profile }, { data: member }, { data: coupons }] = await Promise.all([
+      const [{ data: profile }, { data: member }, { data: coupons }, { data: blk }] = await Promise.all([
         supabase.from("profiles").select("*").eq("id", userId).single(),
         supabase.from("league_members").select("current_points")
           .eq("league_id", league.id).eq("user_id", userId).single(),
@@ -33,10 +51,13 @@ export default function PlayerProfile({ userId, onClose, onBlocked }) {
           .select("*, coupon_legs(*, matches(team1, team2, score1, score2))")
           .eq("user_id", userId).eq("league_id", league.id)
           .order("created_at", { ascending: false }).limit(20),
+        supabase.from("user_blocks").select("blocked_id")
+          .eq("blocker_id", session.user.id).eq("blocked_id", userId).maybeSingle(),
       ]);
       setData({ profile, member, coupons: coupons ?? [] });
+      setBlocked(!!blk);
     })();
-  }, [userId, league.id]);
+  }, [userId, league.id, session.user.id]);
 
   const won = data?.coupons.filter((c) => c.status === "won").length ?? 0;
   const lost = data?.coupons.filter((c) => c.status === "lost").length ?? 0;
@@ -75,12 +96,23 @@ export default function PlayerProfile({ userId, onClose, onBlocked }) {
             <Section title={t("profile.history")} coupons={past} empty={t("profile.noHistory")} />
 
             {!isSelf && (
-              <button
-                onClick={block}
-                className="w-full flex items-center justify-center gap-2 mt-1 py-2.5 rounded-xl text-sm font-medium text-rose-400 bg-rose-500/5 border border-rose-500/20 hover:bg-rose-500/10 transition"
-              >
-                <Ban size={15} /> {t("profile.block")}
-              </button>
+              blocked ? (
+                <button
+                  onClick={unblock}
+                  disabled={busy}
+                  className="w-full flex items-center justify-center gap-2 mt-1 py-2.5 rounded-xl text-sm font-medium text-slate-300 bg-slate-800/60 border border-slate-700 hover:bg-slate-800 transition disabled:opacity-50"
+                >
+                  <RotateCcw size={15} /> {t("profile.unblock")}
+                </button>
+              ) : (
+                <button
+                  onClick={block}
+                  disabled={busy}
+                  className="w-full flex items-center justify-center gap-2 mt-1 py-2.5 rounded-xl text-sm font-medium text-rose-400 bg-rose-500/5 border border-rose-500/20 hover:bg-rose-500/10 transition disabled:opacity-50"
+                >
+                  <Ban size={15} /> {t("profile.block")}
+                </button>
+              )
             )}
           </>
         )}

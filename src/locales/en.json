@@ -119,7 +119,10 @@
     "block": "Block user",
     "blockConfirm": "Block {{name}}? You will no longer see their messages.",
     "blocked": "User blocked.",
-    "blockError": "Couldn't block, try again."
+    "blockError": "Couldn't block, try again.",
+    "unblock": "Unblock user",
+    "unblocked": "User unblocked.",
+    "unblockError": "Couldn't unblock, try again."
   },
   "coupon": {
     "open": "Open",
