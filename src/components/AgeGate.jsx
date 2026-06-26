@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useTranslation, Trans } from "react-i18next";
 import { ShieldAlert } from "lucide-react";
+import LangToggle from "./LangToggle";
 
 // 18+ yaş kapısı — App Store / Google Play simüle bahis gereksinimi.
 // Onay cihazda saklanır (localStorage), bir daha sorulmaz.
@@ -14,7 +15,10 @@ export default function AgeGate({ onConfirm }) {
   };
 
   return (
-    <div className="min-h-screen bg-slate-950 flex items-center justify-center px-4">
+    <div className="relative min-h-screen bg-slate-950 flex items-center justify-center px-4">
+      <div className="absolute top-0 right-0 p-4 pt-safe">
+        <LangToggle />
+      </div>
       <div className="w-full max-w-sm text-center">
         <img src="/logo-mark.png" alt="BetFellas" className="w-16 h-16 rounded-2xl mx-auto mb-5" />
 

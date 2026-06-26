@@ -4,10 +4,11 @@ import { X, User, Pencil, ArrowLeftRight, DoorOpen, LogOut, Info, Check, AlertTr
 import { supabase } from "../lib/supabaseClient";
 import { useApp } from "../context/AppContext";
 import { FRAMES, frameRing } from "../lib/frames";
+import { setLanguage } from "../locales/i18n";
 
 export default function Settings({ onClose, onGoHub }) {
   const { t, i18n } = useTranslation();
-  const changeLang = (lng) => i18n.changeLanguage(lng);
+  const changeLang = (lng) => setLanguage(lng);
   const { profile, league, memberships, refresh, signOut } = useApp();
   const [editingName, setEditingName] = useState(false);
   const [name, setName] = useState(profile?.username ?? "");

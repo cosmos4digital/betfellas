@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useTranslation, Trans } from "react-i18next";
 import { supabase } from "../lib/supabaseClient";
+import LangToggle from "./LangToggle";
 
 export default function Auth() {
   const { t } = useTranslation();
@@ -37,7 +38,10 @@ export default function Auth() {
   const inputCls = "w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 text-sm text-slate-100 placeholder-slate-600 focus:outline-none focus:border-emerald-500 transition";
 
   return (
-    <div className="min-h-screen bg-slate-950 flex items-center justify-center px-4">
+    <div className="relative min-h-screen bg-slate-950 flex items-center justify-center px-4">
+      <div className="absolute top-0 right-0 p-4 pt-safe">
+        <LangToggle />
+      </div>
       <div className="w-full max-w-sm">
         <div className="mb-8">
           <div className="flex items-center gap-2.5 mb-4">
