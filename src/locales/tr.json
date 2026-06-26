@@ -20,7 +20,8 @@
     "signup": "Kayıt ol",
     "processing": "İşleniyor…",
     "noAccount": "Hesabın yok mu? Kayıt ol",
-    "haveAccount": "Zaten üye misin? Giriş yap"
+    "haveAccount": "Zaten üye misin? Giriş yap",
+    "eula": "Devam ederek <terms>Kullanım Şartları</terms>'nı ve uygunsuz içerik ile kötü davranışa <strong>sıfır tolerans</strong> politikamızı kabul edersin. Uygunsuz içeriği bildirebilir, kullanıcıları engelleyebilirsin."
   },
   "league": {
     "title": "Ligler",

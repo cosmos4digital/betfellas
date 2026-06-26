@@ -20,7 +20,8 @@
     "signup": "Sign up",
     "processing": "Processing…",
     "noAccount": "No account? Sign up",
-    "haveAccount": "Already a member? Log in"
+    "haveAccount": "Already a member? Log in",
+    "eula": "By continuing you agree to the <terms>Terms of Use</terms> and our <strong>zero-tolerance</strong> policy for objectionable content and abusive behavior. You can report content and block users."
   },
   "league": {
     "title": "Leagues",

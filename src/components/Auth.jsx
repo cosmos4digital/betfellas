@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useTranslation } from "react-i18next";
+import { useTranslation, Trans } from "react-i18next";
 import { supabase } from "../lib/supabaseClient";
 
 export default function Auth() {
@@ -64,6 +64,17 @@ export default function Auth() {
             className="w-full py-3 rounded-xl font-semibold text-sm text-white bg-emerald-600 hover:bg-emerald-500 active:scale-[0.99] transition disabled:opacity-50">
             {busy ? t("auth.processing") : mode === "signup" ? t("auth.signup") : t("auth.login")}
           </button>
+
+          {/* App Store Guideline 1.2: kayıt/giriş öncesi EULA + sıfır tolerans onayı */}
+          <p className="text-[11px] text-slate-600 leading-relaxed pt-1">
+            <Trans
+              i18nKey="auth.eula"
+              t={t}
+              components={{
+                terms: <a href="/terms.html" target="_blank" rel="noreferrer" className="text-emerald-400 underline" />,
+              }}
+            />
+          </p>
         </form>
 
         <button
